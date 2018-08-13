@@ -1,10 +1,10 @@
 package ai.quantumsense.tgmonitor.ipc.api;
 
 /**
- * <p>Names of requests sent from the UI instances to the core.</p>
+ * <p>Request names to be used in the exchanged request messages.</p>
  *
- * <p>For each request name, the request arguments, and the correesponding
- * response, are described in the following format:</p>
+ * <p>For each request, the request parameters, as well as the type of response
+ * corresponding to the request, are described in the following format:</p>
  *
  * <pre>
  * "name" (name:type, name:type, ...) : (type)
@@ -16,18 +16,17 @@ package ai.quantumsense.tgmonitor.ipc.api;
 public final class Requests {
 
     /**
-     * {@value LOGIN} (phone_number:string, ui_instance_id:string) : ()
+     * {@value LOGIN} (phone_number:string) : ()
      *
-     * <p><b>Considerations for core:</b></p>
+     * <p>This request triggers a nested GET_LOGIN_CODE request from the core
+     * back to the UI instance from which this LOGIN request originated.</p>
      *
-     * <p>This request triggers a nested GET_LOGIN_CODE request back to the UI.
-     * The LOGIN request cannot
-     * complete until the GET_LOGIN_CODE request completes. So, the core
-     * implementation must make sure that there is no deadlock between the
-     * handlers of these two requests.</p>
+     * <p>To this end, this request must have set the header field
+     * LOGIN_CODE_REQUEST_QUEUE (see {@link HeaderKeys}) to the name of a queue
+     * on which the UI instance listens for the GET_LOGIN_CODE request.</p>
      *
-     * <p>The core should not handle any other requests (from other UI
-     * instances) until the entire LOGIN request is completed.</p>
+     * <p>This request cannot complete until the nested GET_LOGIN_CODE request
+     * completes.</p>
      */
     public static final String LOGIN = "login";
 
@@ -158,22 +157,21 @@ public final class Requests {
     public static final String REMOVE_EMAILS = "remove_emails";
 
     /**
-     * {@value GET_LOGIN_CODE} (ui_instance_id:string) : (string)
+     * {@value GET_LOGIN_CODE} () : (string)
      *
-     * <p><b>Considerations for core:</b></p>
+     * <p>This is the only request that is made from the core to an UI instance,
+     * rather than vice versa.</p>
      *
-     * <p>The GET_LOGIN_CODE request must provide as argument the UI
-     * instance ID that was initially provided by the UI in the LOGIN
-     * request. This is in order to allow
-     * the correct UI instance to respond to the GET_LOGIN_CODE request.</p>
+     * <p>This request requires no correlation ID, since it is sent to a
+     * temporary queue that is declared by the UI instance when it starts a
+     * LOGIN request.</p>
      *
-     * <p><b>Considerations for UI instances:</b></p>
+     * <p>This request is nested inside a LOGIN request, that is, it is
+     * triggered by a LOGIN request and it must complete in order to allow the
+     * LOGIN request to complete.</p>
      *
-     * <p>Conversely, when UI instances receive a GET_LOGIN_CODE request,
-     * they must check whether the included UI instance ID argument
-     * corresponds to their own UI instance ID, and only if this is the
-     * case must they execute the request. Otherwise, they must just
-     * ignore it.</p>
+     * <p>Upon receiving this request, the UI instance must prompt the login
+     * code from the user and send it back to the core.</p>
      */
     public static final String GET_LOGIN_CODE = "get_login_code";
 
