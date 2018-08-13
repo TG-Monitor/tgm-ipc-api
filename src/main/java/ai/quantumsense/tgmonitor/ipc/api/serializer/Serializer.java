@@ -11,29 +11,29 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
 import java.util.List;
 
-class Serializer {
+public class Serializer {
 
     private Gson gson = new Gson();
 
-    byte[] serializeRequest(Request request) {
+    public byte[] serializeRequest(Request request) {
         List<Object> l = request.getAsList();
         return str2bytes(gson.toJson(l));
     }
 
-    Request deserializeRequest(byte[] bytes) {
+    public Request deserializeRequest(byte[] bytes) {
         Type t = (new TypeToken<List<Object>>() {}).getType();
         List<Object> l =  gson.fromJson(bytes2str(bytes), t);
         return new Request(l);
     }
 
-    byte[] serializeResponse(Response response) {
+    public byte[] serializeResponse(Response response) {
         if (response.isEmpty())
             return new byte[] {};
         else
             return str2bytes(gson.toJson(response.getValue()));
     }
 
-    Response deserializeResponse(byte[] bytes) {
+    public Response deserializeResponse(byte[] bytes) {
         if (bytes.length == 0)
             return new EmptyResponse();
         else {
