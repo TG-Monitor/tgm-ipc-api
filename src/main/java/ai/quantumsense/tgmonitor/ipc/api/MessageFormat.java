@@ -266,5 +266,9 @@ public final class MessageFormat {
         private CoreToUiRequests() {}
     }
 
+    public static final class HeaderKeys {
+        public static final String LOGIN_CODE_REQUEST_QUEUE = "login_code_request_queue";
+    }
+
     private MessageFormat() {}
 }
